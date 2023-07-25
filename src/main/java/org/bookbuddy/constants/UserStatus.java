@@ -1,6 +1,6 @@
 package org.bookbuddy.constants;
 
-public enum UserConstants {
+public enum UserStatus {
     ACTIVE,BLOCKED
 
 }
