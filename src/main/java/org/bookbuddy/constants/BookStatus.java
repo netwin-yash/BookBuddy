@@ -1,2 +1,5 @@
-package org.bookbuddy.constants;public enum BookEnum {
+package org.bookbuddy.constants;
+
+public enum BookStatus {
+    AVAILABLE,TAKEN,BLOCKED
 }
