@@ -18,6 +18,12 @@ public class Book {
         this.bookStatus = status;
         this.owner = user;
     }
+    public User getOwner() {
+        return owner;
+    }
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
     public void  setName(String name){
         this.name = name;
     }

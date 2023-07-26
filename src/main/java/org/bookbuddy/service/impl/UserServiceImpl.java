@@ -4,20 +4,23 @@ import org.bookbuddy.constants.UserStatus;
 import org.bookbuddy.exceptions.BookExceptions;
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
+import org.bookbuddy.service.BookService;
 import org.bookbuddy.service.UserService;
 
+import javax.annotation.PostConstruct;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class UserServiceImpl implements UserService {
 
-   private List<User> userList;
+   private final Map<String,User> userMap;
+   private final BookService bookService = new BookServiceImpl();
+
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
     public UserServiceImpl() throws ParseException {
-        userList = new ArrayList<>();
+        userMap = new HashMap<>();
         initialUsers();
     }
 
@@ -27,9 +30,9 @@ public class UserServiceImpl implements UserService {
 
         //Parsing the given String to Date object
         Date date = formatter.parse(date_string);
-        userList.add(new User("Yash@123",1,"1010101010","Yash@123","Pune",UserStatus.ACTIVE,date));
-        userList.add(new User("Shre@123",2,"2010101010","Shre@123","Nashik",UserStatus.ACTIVE,date));
-
+        userMap.put("Yash@123",new User("Yash Joshi",1,"1111111111","Yash@123","Pune",UserStatus.ACTIVE,date));
+        userMap.put("Shre@123",new User("Shreya",2,"3222222222","Shre@123","Nashik",UserStatus.ACTIVE,date));
+        userMap.put("Ramesh@123",new User("Ramesh",3,"4222222222","Ramesh@123","Mumbai",UserStatus.BLOCKED,date));
     }
 
     @Override
@@ -37,39 +40,54 @@ public class UserServiceImpl implements UserService {
         if(user == null){
             throw new BookExceptions("Fields cannot be empty");
         }
-        int a =  userList.size();
+        int a =  userMap.size();
         user.setUid(a+1);
         // Set the registration date
         Date date = new Date();
         user.setRegDate(date);
         user.setStatus(UserStatus.ACTIVE);
-        userList.add(user);
-        return "User Created Successfully..!!";
+        userMap.put(user.getuName(),user);
+        return " User Created Successfully..!!";
     }
     @Override
     public User validateUser(String uName, String pwd) {
         boolean userName = false;
         boolean password = false;
-        for(User user : userList){
-            if(user.getuName().trim().equals(uName.trim())){
-                userName=true;
-                if(user.getPassword().trim().equals(pwd.trim())){
-                    password=true;
-                    return user;
-                }
-            }
-        }
-        if(!userName && !password){
+        for(Map.Entry<String,User> map :userMap.entrySet()){
+         String storedUserName = map.getKey();
+         if(storedUserName.trim().equals(uName.trim())){
+             userName=true;
+             User user = map.getValue();
+             if(user.getPassword().trim().equals(pwd.trim())){
+                 password=true;
+                 return user;
+             }
+         }
+    }
+         if(!userName && !password){
             System.out.println("Invalid UserName & Password, Enter correct credentials...!");
             return null;
         }
-        if(!password){
+         if(!password){
             System.out.println("Invalid Password, Enter correct Password...!");
         }
-
         return null;
-
     }
+
+    public List<Book> mySharedBookHistory(User user){
+       List<Book> book = bookService.getListOfBooks().stream().filter(book1 -> book1.getOwner().getuName().trim().equals(user.getuName())).collect(Collectors.toList());
+       if(book.isEmpty()|| book == null){
+           System.out.println("You have not shared any book yet...");
+           return null;
+       }
+       return book;
+    }
+
+
+
+
+
+
 
 
 }
