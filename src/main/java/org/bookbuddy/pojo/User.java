@@ -13,6 +13,7 @@ public class User {
     private static final String PHONE_REGEX = "^\\d{10}$";
 
     private String uName;
+    private String name;
     private int uid;
     private String uAddress;
     private String phone;
@@ -33,8 +34,8 @@ public User(String msg){
         this.uid = uid;
         this.phone = phone;
     }
-    public User(String uName,int uid, String phone,String password,String uAddress,UserStatus userStatus,Date regDate) {
-        this.uName = uName;
+    public User(String name,int uid, String phone,String password,String uAddress,UserStatus userStatus,Date regDate) {
+        this.name = name;
         this.uid = uid;
         this.phone = phone;
         this.password = password;
@@ -53,6 +54,14 @@ public User(String msg){
     }
     public String getPassword() {
         return password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setPassword(String password) {

@@ -23,9 +23,14 @@ public class BookServiceImpl implements BookService {
     }
 
     public void initializeBooks() {
-        initialBookList.add(new Book("Wings Of Fire", 1, "Apj", BookStatus.AVAILABLE, new User("Prakash", 1, "1111111111")));
-        initialBookList.add(new Book("Meditation", 2, "Vivekananda", BookStatus.AVAILABLE, new User("Ramesh", 2, "2222222222")));
-        initialBookList.add(new Book("Ram", 3, "Vk", BookStatus.TAKEN, new User("Msd", 3, "3222222222")));
+        initialBookList.add(new Book("Wings Of Fire", 1, "Apj", BookStatus.AVAILABLE, new User("Yash@123", 1, "1111111111")));
+        initialBookList.add(new Book("Meditation", 2, "Vivekananda", BookStatus.AVAILABLE, new User("Yash@123", 1, "1111111111")));
+        initialBookList.add(new Book("Ramayana", 3, "Ram", BookStatus.AVAILABLE, new User("Shre@123", 2, "3222222222")));
+        initialBookList.add(new Book("Ramdas swami", 4, "Ram", BookStatus.AVAILABLE, new User("Shre@123", 2, "3222222222")));
+        initialBookList.add(new Book("Bhagavad gita", 5, "Yash", BookStatus.TAKEN, new User("Shre@123", 2, "3222222222")));
+        initialBookList.add(new Book("Bhagalpur ka chita", 6, "Yash", BookStatus.AVAILABLE, new User("Shre@123", 2, "3222222222")));
+        initialBookList.add(new Book("Krishna", 7, "Yash", BookStatus.AVAILABLE, new User("Ramesh@123", 3, "4222222222")));
+        initialBookList.add(new Book("Hanuman", 8, "Yash", BookStatus.TAKEN, new User("Ramesh@123", 3, "4222222222")));
     }
 
 
@@ -77,7 +82,23 @@ public class BookServiceImpl implements BookService {
         return "Book Returned Successfully...!!";
     }
 
+    public List<Book> getAllAvailbleBooks(){
+        List<Book> b = getListOfBooks().stream().filter(book -> book.getBookStatus().equals(BookStatus.AVAILABLE)).collect(Collectors.toList());
+        if(b.isEmpty()){
+            System.out.println("No Book Available...! Come back later :) ");
+            return null;
+        }else {
+            return b;
+        }
+    }
 
+    public List<Book> searchBookByName(String name){
+        List<Book> bookList = getListOfBooks().stream().filter(book -> book.getName().trim().equalsIgnoreCase(name.trim().toLowerCase())).collect(Collectors.toList());
+        if(bookList.isEmpty()){
+            return null;
+        }
+        return bookList;
+    }
 
 
 }

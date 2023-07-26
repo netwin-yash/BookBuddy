@@ -12,4 +12,6 @@ public interface BookService {
    String borrowBook(Integer bid);
 
     public String returnBook(Integer bid);
+
+    List<Book> getAllAvailbleBooks();
 }
