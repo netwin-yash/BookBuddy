@@ -8,10 +8,14 @@ import java.util.List;
 
 public interface UserService {
 
-    String addUser(User user) throws ParseException;
+     String addUser(User user) throws ParseException;
 
 
-    User validateUser(String uName, String pwd);
-    public List<Book> mySharedBookHistory(User user);
+     User validateUser(String uName, String pwd);
+     List<Book> mySharedBookHistory(User user);
+
+     List<Book> getListOfBorrowedBooks(User user);
+
+
 
 }
