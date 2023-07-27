@@ -7,7 +7,7 @@ import org.bookbuddy.pojo.User;
 import org.bookbuddy.service.BookService;
 import org.bookbuddy.service.UserService;
 
-import javax.annotation.PostConstruct;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -82,6 +82,32 @@ public class UserServiceImpl implements UserService {
        }
        return book;
     }
+
+    public List<Book> getFavouriteBooks(){
+
+        return null;
+    }
+
+
+    public List<Book> getListOfBorrowedBooks(User user){
+        if(user == null){
+            return null;
+        }
+        boolean flag = false;
+        List<Book> book = bookService.getListOfBooks();
+        List<Book> newList = new ArrayList<>();
+        for(Book b : book){
+            User u = b.getOwner();
+            flag = u.getuName().trim().equalsIgnoreCase(user.getuName().trim().toLowerCase());
+            if(flag) {
+                newList.add(b);
+            }else{
+                return null;
+            }
+        }
+      return newList;
+    }
+
 
 
 

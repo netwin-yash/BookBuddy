@@ -5,6 +5,7 @@ import org.bookbuddy.exceptions.BookExceptions;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class User {
@@ -19,8 +20,8 @@ public class User {
     private String phone;
     private UserStatus status;
     private Date regDate;
-    private List<Book> favouriteBooks;
-    private List<Book> borrowedBooks;
+    private Set<Book> favouriteBooks;
+    private Set<Book> borrowedBooks;
     private String msg;
 
     private String password;
@@ -43,7 +44,7 @@ public User(String msg){
         this.status = userStatus;
         this.regDate = regDate;
     }
-    public User(String uName, String uAddress, String phone, UserStatus status, Date regDate, List<Book> favouriteBooks, List<Book> borrowedBooks){
+    public User(String uName, String uAddress, String phone, UserStatus status, Date regDate, Set<Book> favouriteBooks, Set<Book> borrowedBooks){
         this.uName = uName;
         this.uAddress = uAddress;
         this.regDate = regDate;
@@ -121,16 +122,16 @@ public User(String msg){
     public Date getRegDate(){
         return regDate;
     }
-    public void setBorrowedBooks(List<Book> borrowedBooks){
+    public void setBorrowedBooks(Set<Book> borrowedBooks){
         this.borrowedBooks = borrowedBooks;
     }
-    public List<Book> getBorrowedBooks(){
+    public Set<Book> getBorrowedBooks(){
         return borrowedBooks;
     }
-    public void setFavouriteBooks(List<Book> favouriteBooks){
+    public void setFavouriteBooks(Set<Book> favouriteBooks){
         this.favouriteBooks = favouriteBooks;
     }
-    public List<Book> getFavouriteBooks(){
+    public Set<Book> getFavouriteBooks(){
         return favouriteBooks;
     }
 

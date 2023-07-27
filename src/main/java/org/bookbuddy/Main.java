@@ -1,16 +1,18 @@
 package org.bookbuddy;
 
 
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
+
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
 import org.bookbuddy.service.impl.BookServiceImpl;
 import org.bookbuddy.service.impl.UserServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Main {
@@ -109,44 +111,48 @@ public class Main {
     }
     //dashboard
     static void dashboard(boolean isRunning, User user) {
-        System.out.printf("%124s %n", "* <== ** <=== *** <====  Welcome " + user.getName() + ", Have a great book sharing ====> *** ===> ** ==> *\n\n");
+        designLine();
+        System.out.println();
+        System.out.printf("%125s %n", "* <== ** <=== *** <====  Welcome " + user.getName() + ", Have a great book sharing ====> *** ===> ** ==> *\n");
+        designLine();
+        System.out.println();
         while (isRunning) {
             System.out.printf("%44s %34s %43s %n"," 1. Add a book"," 2. All Books"," 3. Search a book");
             System.out.println("\n");
             System.out.printf("%49s %33s %39s %n"," 4. Available books"," 5. Borrow a book","6. Return a book");
             System.out.println("\n");
-            System.out.printf("%47s %40s %25s %n"," 7. Return a book"," 8. Books Shared by me","9. Exit");
+            System.out.printf("%52s %22s %38s %n"," 7. Books Shared by me"," 8. Other","9. Exit");
             System.out.print("\n Enter your choice : ");
+
             int choice = scanner.nextInt();
             switch (choice) {
                 case 1:
                     addNewBook();
                     break;
                 case 2:
-                    System.out.println();
-                    System.out.printf("%112s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *\n\n");
+                    System.out.println("\n");
+                    System.out.printf("%110s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *\n");
+                    designLine();
                     System.out.printf("%46s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status");
                     System.out.println();
                     getListOfBooks();
+                    designLine();
                     handleBookActions();
                     break;
                 case 3:
                     handleSearchBookActions();
                     break;
                 case 4:
-                    System.out.printf("%113s %n", "* <== ** <=== *** <====  LIST OF AVAILABLE BOOKS ====> *** ===> ** ==> *\n\n");
-                    String line =  "--------------------------------------------------------------------------------------------------------------------------------";
-                    int totalWidth = 100;
-                    int lineLength = line.length();
-                    int spaces = (totalWidth - lineLength) / 2;
-                    String centeredLine = String.format("%" + spaces + "s%s%" + spaces + "s%n", "", line, "");
-                    System.out.print("\n"+centeredLine+"\n");
+                    System.out.println();
+                    System.out.printf("%113s %n", "* <== ** <=== *** <====  LIST OF AVAILABLE BOOKS ====> *** ===> ** ==> *");
+                    designLine();
                     System.out.printf("%46s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status\n");
                     int c = availableBooks();
                     if(c==0){
                         break;
                     }
-                    System.out.print("\n"+centeredLine+"\n\n");
+                    designLine();
+                    handleBookActions();
                     break;
                 case 5:
                     getListOfBooks();
@@ -160,12 +166,28 @@ public class Main {
                     String returnResult = bookService.returnBook(returnBid);
                     System.out.println(returnResult);
                     break;
-                case 8:
+                case 7:
                     System.out.printf("%110s %n", "* <-- ** <--- *** <---- BOOKS SHARED BY YOU ----> *** ---> ** --> *\n\n");
                      int count = mySharedBooks(user);
                      if(count==0){
                          break;
                      }
+                    break;
+                case 8:
+
+                    List<Book> book = userService.getListOfBorrowedBooks(user);
+                    if(book.isEmpty() || book == null){
+                        System.out.println("You have not borrowed any book yet...!");
+                        return;
+                    }
+                    System.out.println();
+                    designLine();
+                    System.out.printf("%45s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status");
+                    for(Book b : book){
+                        String auth = String.join(", ",b.getAuthor());
+                        System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
+                    }
+                    designLine();
                     break;
                 case 9:
                     System.out.println("\n See You Soon..! " +user.getName());
@@ -182,9 +204,14 @@ public class Main {
         System.out.println(" Enter title of book");
         String name = sc.nextLine();
         book.setName(name);
-        System.out.println(" Enter Author of book");
-        String author = sc.nextLine();
-        book.setAuthor(author);
+        System.out.println("Enter author names (comma-separated):");
+        String authorNamesInput = sc.nextLine();
+        // Split the input string using commas as the delimiter
+        String[] authorNamesArray = authorNamesInput.split(",");
+        // Create a list containing the author names
+        Set<String> authorList = Set.of(authorNamesArray);
+        book.setAuthor(authorList);
+
         String response = bookService.addBook(book);
         System.out.println("\n" + response);
     }
@@ -193,7 +220,8 @@ public class Main {
         List<Book> booklist = bookService.getListOfBooks();
         for (Book b : booklist) {
             // Use format specifiers to maintain similar spaces between book details
-            System.out.printf("%50s %20s %21s %30s %n", b.getName(), b.getAuthor(), b.getBid(), b.getBookStatus());
+            String auth = String.join(", ",b.getAuthor());
+            System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
         }
     }
     // borrow a book
@@ -209,7 +237,8 @@ public class Main {
             return 0;
         }else {
             for(Book b : bookList){
-                System.out.printf("%49s %20s %21s %30s %n", b.getName(), b.getAuthor(), b.getBid(), b.getBookStatus());
+                String auth = String.join(", ",b.getAuthor());
+                System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
             }
             return 1;
         }
@@ -225,16 +254,12 @@ public class Main {
                 System.out.println("\n");
                 for (Book b : bookList) {
                     // Use format specifiers to maintain similar spaces between book details
-                    System.out.printf("%50s %20s %21s %30s %n", b.getName(), b.getAuthor(), b.getBid(), b.getBookStatus());
+                    String auth = String.join(", ",b.getAuthor());
+                    System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
                     count++;
                 }
                 System.out.println("\n");
-               String line =  "--------------------------------------------------------------------------------------------------------------------------------";
-                int totalWidth = 100;
-                int lineLength = line.length();
-                int spaces = (totalWidth - lineLength) / 2;
-                String centeredLine = String.format("%" + spaces + "s%s%" + spaces + "s%n", "", line, "");
-                System.out.print(centeredLine);
+                designLine();
 
             }
             else{
@@ -256,20 +281,28 @@ public class Main {
         }
         else {
             System.out.println("\n");
-            System.out.printf("%46s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status\n");
-            System.out.println("\n");
+            designLine();
+            System.out.printf("%47s %24s %23s %24s %n", "Name", "Author", "Book Id", "Status\n");
             for (Book b : bookList) {
-                System.out.printf("%50s %20s %21s %30s %n", b.getName(), b.getAuthor(), b.getBid(), b.getBookStatus());
+                String auth = String.join(", ",b.getAuthor());
+                System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
             }
             return 1;
         }
     }
-
+    private static void designLine(){
+        String line =  "--------------------------------------------------------------------------------------------------------------------------------";
+        int totalWidth = 100;
+        int lineLength = line.length();
+        int spaces = (totalWidth - lineLength) / 2;
+        String centeredLine = String.format("%" + spaces + "s%s%" + spaces + "s%n", "", line, "");
+        System.out.print("\n"+centeredLine+"\n");
+    }
     static void handleSearchBookActions() {
         while(true){
             System.out.println("\n");
             System.out.printf("%41s %32s %32s %20s %n", " 1. Search book by name", "2. Search book by author", "3. Search Book By Keyword","4. Back");
-            System.out.print(" \nEnter your choice : ");
+            System.out.print(" \n\n Enter your choice : ");
             int userChoice = scanner.nextInt();
             System.out.println("\n");
             switch (userChoice) {
@@ -283,8 +316,45 @@ public class Main {
                     }else {
                         break;
                     }
-
-
+                case 2:
+                    System.out.println(" Enter Author name");
+                    String name = sc.nextLine();
+                    List<Book> book =  bookService.searchBookWithAuthorName(name);
+                    if(book.isEmpty() || book == null){
+                        System.out.println("No records found with the author named "+name);
+                        return;
+                    }else {
+                        System.out.printf("%110s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *\n");
+                        designLine();
+                        System.out.println();
+                        System.out.printf("%47s %24s %23s %24s %n", "Name", "Author", "Book Id", "Status\n");
+                        for (Book b : book) {
+                            String authors = String.join(", ", b.getAuthor());
+                            System.out.printf("%50s %20s %21s %30s %n", b.getName(), authors, b.getBid(), b.getBookStatus());
+                        }
+                        System.out.println();
+                        designLine();
+                        break;
+                    }
+                case 3:
+                    System.out.println(" Enter a keyword");
+                    String keyword = sc.nextLine();
+                    List<Book> bookList = bookService.searchBookWithKeywords(keyword);
+                    if(bookList.isEmpty() || bookList == null){
+                        System.out.println(" No records Found..!");
+                        return;
+                    }
+                    System.out.printf("%110s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *\n");
+                    designLine();
+                    System.out.println();
+                    System.out.printf("%47s %24s %23s %24s %n", "Name", "Author", "Book Id", "Status\n");
+                    for (Book b : bookList) {
+                        String authors = String.join(", ", b.getAuthor());
+                        System.out.printf("%50s %20s %21s %30s %n", b.getName(), authors, b.getBid(), b.getBookStatus());
+                    }
+                    System.out.println();
+                    designLine();
+                    break;
                 case 4:
                     // Back to Main menu
                     return;
@@ -292,16 +362,11 @@ public class Main {
                     System.out.println(" Under Construction. Please choose a valid option.");
             }
         }
-
-
-
     }
-
-
     //library
     static void handleBookActions() {
         while (true) {
-            System.out.println("\n");
+
             System.out.printf("%44s %35s %35s %n", " 1. Borrow book", "2. Return book", "3. Back to Main menu");
             System.out.print(" \nEnter your choice : ");
             int userChoice = scanner.nextInt();
