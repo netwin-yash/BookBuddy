@@ -1,7 +1,6 @@
 package org.bookbuddy.service.impl;
 
 import org.bookbuddy.constants.BookStatus;
-import org.bookbuddy.constants.UserStatus;
 import org.bookbuddy.exceptions.BookExceptions;
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
@@ -14,39 +13,33 @@ public class BookServiceImpl implements BookService {
 
     // Instance variable to store the list of books
     private List<Book> initialBookList;
-
-    public BookServiceImpl() {
+        public BookServiceImpl() {
         initialBookList = new ArrayList<>();
         initializeBooks();
     }
 
     public void initializeBooks() {
-        initialBookList.add(new Book("Wings Of Fire", 1, Set.of("Apj", "Kalam"), BookStatus.AVAILABLE, new User("Yash@123", 1, "1111111111"),Set.of("apj","kalam book","wings","fire","Rocket")));
+        initialBookList.add(new Book("Wings Of Fire", 1, Set.of("Apj", "Kalam"), BookStatus.TAKEN, new User("Yash@123", 1, "1111111111"),Set.of("apj","kalam book","wings","fire","Rocket")));
         initialBookList.add(new Book("Meditation", 2, Set.of("Vivekananda"), BookStatus.AVAILABLE, new User("Yash@123", 1, "1111111111"),Set.of("swami","vivekanand","swami vivekanand","paranayam","peace","medi")));
         initialBookList.add(new Book("Ramayana", 3, Set.of("Ram"), BookStatus.AVAILABLE, new User("Shre@123", 2, "3222222222"),Set.of("Shree Ram","Tulsidas","sita","ram-sita","ramrajya")));
         initialBookList.add(new Book("Ramdas swami", 4, Set.of("Ram"), BookStatus.AVAILABLE, new User("Shre@123", 2, "3222222222"),Set.of("ram bhakt","swami","sajjangad","ram")));
-        initialBookList.add(new Book("Bhagavad gita", 5, Set.of("Yash"), BookStatus.TAKEN, new User("Shre@123", 2, "3222222222"),Set.of("gita","krishna","arjuna","mahabharat","vyas","bhagwad")));
+        initialBookList.add(new Book("Bhagavad gita", 5, Set.of("Yash"), BookStatus.AVAILABLE, new User("Shre@123", 2, "3222222222"),Set.of("gita","krishna","arjuna","mahabharat","vyas","bhagwad")));
         initialBookList.add(new Book("Bhagalpur ka chita", 6, Set.of("Yash"), BookStatus.AVAILABLE, new User("Shre@123", 2, "3222222222"),Set.of("bhagalpur","chitta")));
         initialBookList.add(new Book("Krishna", 7, Set.of("Yash"), BookStatus.AVAILABLE, new User("Ramesh@123", 3, "4222222222"), Set.of("krishna","kisna")));
         initialBookList.add(new Book("Hanuman", 8, Set.of("Apj", "Yash"), BookStatus.TAKEN, new User("Ramesh@123", 3, "4222222222"), Set.of("ram ke bhakt","hanuman","maruti","shree ram","anjani putra","ram")));
+        initialBookList.add(new Book("Wings Of Fire 2", 9, Set.of("Apj", "Kalam"), BookStatus.TAKEN, new User("Yash@123", 1, "1111111111"),Set.of("apj","kalam book","wings","fire","Rocket")));
     }
-
-
-
-
-
-
 
     @Override
     public String addBook(Book book) {
         if(book == null){
-            throw new BookExceptions("Please add one book with appropriate records");
+            throw new BookExceptions(" Please add a book with appropriate records");
         }
         int nextBid = initialBookList.size() + 1;
         book.setBid(nextBid);
         book.setBookStatus(BookStatus.AVAILABLE);
         initialBookList.add(book);
-        return "Book added successfully..!!";
+        return " Book added successfully..!!";
     }
 
     @Override
@@ -58,7 +51,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public String borrowBook(Integer bid) {
+    public String borrowBook(Integer bid,User user) {
         if(bid == null || bid == 0) {
             throw new BookExceptions("Book Id can not be zero or empty");
         }
@@ -67,22 +60,23 @@ public class BookServiceImpl implements BookService {
                 .findFirst().get();
         if(b!=null && b.getBookStatus()==BookStatus.AVAILABLE){
             b.setBookStatus(BookStatus.TAKEN);
-            return "Book Borrowed Successfully...!!";
+            b.setOwner(user);
+            return " Book Borrowed Successfully...!!";
         }
-        return "This Book has been already taken...!!";
+        return " This Book has been already taken...!!";
     }
 
     public String returnBook(Integer bid){
         if(bid == null || bid == 0) {
-            throw new BookExceptions("Book Id can not be zero or empty");
+            throw new BookExceptions(" Book Id can not be zero or empty");
         }
         Book b =initialBookList.stream().filter(book -> book.getBid()==bid).findFirst().get();
         if(b!=null && b.getBookStatus()==BookStatus.TAKEN){
             b.setBookStatus(BookStatus.AVAILABLE);
         }else{
-            return "Return only the book you borrowed.";
+            return " Return only the book you borrowed.";
         }
-        return "Book Returned Successfully...!!";
+        return " Book Returned Successfully...!!";
     }
 
     public List<Book> getAllAvailbleBooks(){
@@ -151,4 +145,17 @@ public class BookServiceImpl implements BookService {
         }
            return bl;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
