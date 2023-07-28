@@ -35,80 +35,120 @@ public class Main {
         System.out.print(" Enter your choice : ");
         return scanner.nextInt();
     }
+    //instructions
+    private static void appInstructions() {
+        System.out.println();
+        System.out.printf("%103s %n", "*--------------- Instructions ---------------*\n");
+        System.out.println();
+        System.out.printf("%-60s%n", "1. Usernames and passwords must contain at least 8 characters.");
+        System.out.printf("%-60s%n", "2. Usernames and passwords must include at least 1 lowercase letter, 1 uppercase letter, 1 special character, and 1 numeric digit.");
+        System.out.printf("%-60s%n", "3. Phone numbers should consist of exactly 10 digits & must be unique.");
+
+
+
+    }
     //register new USER...!
     static User registerNewUser() throws ParseException {
+        System.out.println("\n");
+        System.out.printf("%103s %n", "*--------------- Registration ---------------*\n");
         boolean isUsernameValid = false;
         boolean isPasswordValid = false;
         boolean isMobileValid = false;
         User user = new User();
-        System.out.println(" Enter Your name : ");
+        System.out.print("  Enter Your name : ");
         String name = sc.nextLine();
         user.setName(name);
         while (!(isUsernameValid && isPasswordValid && isMobileValid)) {
             if (!isUsernameValid) {
-                System.out.println(" Enter user name");
+                System.out.println();
+                System.out.print("  Enter user name  : ");
                 String uname = sc.nextLine();
                 if (Pattern.matches(USERNAME_REGEX, uname)) {
-                    user.setuName(uname);
-                    isUsernameValid = true;
+                   boolean flag =  userService.isUsernameExists(uname);
+                   if(flag){
+                       System.out.println();
+                       System.out.println("  This Username is already taken... Try different username...!");
+                       isUsernameValid = false;
+                   }else {
+                       user.setuName(uname);
+                       isUsernameValid = true;
+                   }
                 } else {
-                    System.out.println("Invalid User name format, please try again.");
+                    System.out.println();
+                    System.out.println("  Sorry, the username you provided does not meet the required format. Please ensure your username adheres to the specified criteria. ");
+
                 }
             }
             if (isUsernameValid && !isPasswordValid) {
-                System.out.println(" Enter your password");
+                System.out.println();
+                System.out.print("  Enter your password : ");
                 String pwd = sc.nextLine();
                 if (Pattern.matches(PASSWORD_REGEX, pwd)) {
                     user.setPassword(pwd);
                     isPasswordValid = true;
                 } else {
-                    System.out.println("Invalid Password format, please try again.");
+                    System.out.println("  Invalid Password format, please try again.");
                 }
             }
             if (isUsernameValid && isPasswordValid && !isMobileValid) {
-                System.out.println(" Enter your Mobile");
+                System.out.println();
+                System.out.print("  Enter your Mobile : ");
                 String phone = sc.nextLine();
                 if (Pattern.matches(PHONE_REGEX, phone)) {
-                    user.setPhone(phone);
-                    isMobileValid = true;
+                    if (userService.isPhoneNumberRegistered(phone)) {
+                        System.out.println("  This phone number is already registered with us...!");
+                    } else {
+                        user.setPhone(phone);
+                        isMobileValid = true;
+                    }
                 } else {
-                    System.out.println("Invalid Phone no. format, Mobile should be 10 number only.");
+                    System.out.println("  Invalid Phone no. format, Mobile should be 10 numbers only.");
                 }
+
             }
         }
-        System.out.println(" Enter your Address");
+        System.out.println();
+        System.out.print("  Enter your Address : ");
         String add = sc.nextLine();
         user.setuAddress(add);
         String response = userService.addUser(user);
-        System.out.println(response);
-        return user;
+        System.out.println("\n"+response+"\n");
+        if(response.matches("  Registration Successful..!!")){
+            return user;
+        }else {
+            return null;
+        }
     }
     //login ui
     static User loginToSystem(User user,boolean flag) {
         if(flag){
           User u =  userService.validateUser(user.getuName(), user.getPassword());
           if(u==null){
-              System.out.println("Not a valid user");
+              System.out.println("  Not a valid user");
           } else {
+              System.out.println();
               System.out.println(" Authentication Successful...!\n");
           }
           return u;
         }
         else {
-            System.out.println(" \n Enter your username");
+            System.out.print(" \n Enter your username : ");
             String uName = sc.nextLine();
-            System.out.println(" Enter your password");
+            System.out.println();
+            System.out.print(" Enter your password : ");
             String pwd = sc.nextLine();
             User tempUser = new User();
             tempUser = userService.validateUser(uName, pwd);
             if (tempUser == null) {
                 System.out.println("New User ? Register yourself with us first...!");
             } else {
+                System.out.println();
                 System.out.println(" Authentication Successful...!\n");
             }
             return tempUser;
         }
     }
+
     //dashboard
     static void dashboard(boolean isRunning, User user) {
         designLine();
@@ -123,8 +163,8 @@ public class Main {
             System.out.println("\n");
             System.out.printf("%52s %22s %38s %n"," 7. Books Shared by me"," 8. Other","9. Exit");
             System.out.print("\n Enter your choice : ");
-
             int choice = scanner.nextInt();
+            System.out.println();
             switch (choice) {
                 case 1:
                     addNewBook();
@@ -137,7 +177,7 @@ public class Main {
                     System.out.println();
                     getListOfBooks();
                     designLine();
-                    handleBookActions();
+                    handleBookActions(user);
                     break;
                 case 3:
                     handleSearchBookActions();
@@ -152,19 +192,21 @@ public class Main {
                         break;
                     }
                     designLine();
-                    handleBookActions();
+                    handleBookActions(user);
                     break;
                 case 5:
                     getListOfBooks();
-                    System.out.println(" \nEnter the Book Id of the book you want to borrow:");
+                    System.out.print(" \n Enter the Book Id of the book you want to borrow : ");
                     int borrowBid = scanner.nextInt();
-                    borrowBook(borrowBid);
+                    String borrowResult = borrowBook(borrowBid,user);
+                    System.out.println("\n"+borrowResult+"\n");
                     break;
                 case 6:
-                    System.out.println(" Enter the Book Id of the book you want to return:");
+                    myBorrowedBooks(user,false);
+                    System.out.print(" Enter the Book Id of the book you want to return : ");
                     int returnBid = scanner.nextInt();
                     String returnResult = bookService.returnBook(returnBid);
-                    System.out.println(returnResult);
+                    System.out.println("\n"+returnResult+"\n");
                     break;
                 case 7:
                     System.out.printf("%110s %n", "* <-- ** <--- *** <---- BOOKS SHARED BY YOU ----> *** ---> ** --> *\n\n");
@@ -174,21 +216,8 @@ public class Main {
                      }
                     break;
                 case 8:
-
-                    List<Book> book = userService.getListOfBorrowedBooks(user);
-                    if(book.isEmpty() || book == null){
-                        System.out.println("You have not borrowed any book yet...!");
-                        return;
-                    }
-                    System.out.println();
-                    designLine();
-                    System.out.printf("%45s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status");
-                    for(Book b : book){
-                        String auth = String.join(", ",b.getAuthor());
-                        System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
-                    }
-                    designLine();
-                    break;
+                 handleOtherOption(user);
+                 break;
                 case 9:
                     System.out.println("\n See You Soon..! " +user.getName());
                     return;
@@ -201,11 +230,12 @@ public class Main {
     // add a new bok into the system.
     private static void addNewBook() {
         Book book = new Book();
-        System.out.println(" Enter title of book");
+        System.out.print(" Enter title of book : ");
         String name = sc.nextLine();
         book.setName(name);
-        System.out.println("Enter author names (comma-separated):");
+        System.out.print("\n Enter author names (comma-separated) : ");
         String authorNamesInput = sc.nextLine();
+        System.out.println();
         // Split the input string using commas as the delimiter
         String[] authorNamesArray = authorNamesInput.split(",");
         // Create a list containing the author names
@@ -213,7 +243,7 @@ public class Main {
         book.setAuthor(authorList);
 
         String response = bookService.addBook(book);
-        System.out.println("\n" + response);
+        System.out.println(response+"\n" );
     }
     // all books
     private static void getListOfBooks() {
@@ -225,9 +255,8 @@ public class Main {
         }
     }
     // borrow a book
-    private static void borrowBook(Integer bid) {
-        String response = bookService.borrowBook(bid);
-        System.out.println(response);
+    private static String borrowBook(Integer bid,User user) {
+        return bookService.borrowBook(bid,user);
     }
     // available books to borrow
     private static int availableBooks() {
@@ -298,6 +327,54 @@ public class Main {
         String centeredLine = String.format("%" + spaces + "s%s%" + spaces + "s%n", "", line, "");
         System.out.print("\n"+centeredLine+"\n");
     }
+    // my borrowed books
+    private static boolean myBorrowedBooks(User user,boolean flag){
+        List<Book> book = userService.getListOfBorrowedBooks(user);
+        if(book.isEmpty() || book == null){
+            System.out.println(" You have not borrowed any book yet...!\n");
+            return true;
+        }
+        System.out.printf("%110s %n", "* <-- ** <--- *** <---- BOOKS BORROWED BY YOU ----> *** ---> ** --> *\n\n");
+        designLine();
+        System.out.printf("%45s %25s %24s %28s %n", "Name", "Author", "Book Id", "Status");
+        System.out.println();
+        for(Book b : book){
+            String auth = String.join(", ",b.getAuthor());
+            System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
+        }
+        designLine();
+        return true;
+    }
+
+
+    //other
+    private static void handleOtherOption(User user){
+         while(true){
+             System.out.println("\n");
+             System.out.printf("%53s %31s %28s%n", " 1. Book borrowed by me", "2. favourite books","3. Back");
+             System.out.print(" \n\n Enter your choice : ");
+             int userChoice = scanner.nextInt();
+             System.out.println();
+             switch (userChoice){
+                 case 1:
+                     boolean flag1=false;
+                     boolean flag = myBorrowedBooks(user,flag1);
+                     if(flag){
+                         break;
+                     }
+                 case 2:
+                  //   userService.myFavouriteBookList(user);
+
+                     break;
+                 case 3:
+                     return;
+                 default:
+                     System.out.println(" In-valid Option, Please try again");
+                     break;
+
+             }
+         }
+    }
     static void handleSearchBookActions() {
         while(true){
             System.out.println("\n");
@@ -364,27 +441,38 @@ public class Main {
         }
     }
     //library
-    static void handleBookActions() {
+    static void handleBookActions(User user) {
         while (true) {
 
             System.out.printf("%44s %35s %35s %n", " 1. Borrow book", "2. Return book", "3. Back to Main menu");
-            System.out.print(" \nEnter your choice : ");
+            System.out.print("\n Enter your choice : ");
             int userChoice = scanner.nextInt();
             System.out.println("\n");
             switch (userChoice) {
                 case 1:
                     // Borrow book
-                    System.out.println(" Enter the Book Id of the book you want to borrow:");
+                    System.out.println();
+                    System.out.printf("%113s %n", "* <== ** <=== *** <====  LIST OF AVAILABLE BOOKS ====> *** ===> ** ==> *");
+                    designLine();
+                    System.out.printf("%46s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status\n");
+                    int c = availableBooks();
+                    if(c==0){
+                        break;
+                    }
+                    System.out.println();
+                    designLine();
+                    System.out.print("\n Enter the Book Id of the book you want to borrow : ");
                     int borrowBid = scanner.nextInt();
-                    String borrowResult = bookService.borrowBook(borrowBid);
-                    System.out.println(borrowResult);
+                    String borrowResult = borrowBook(borrowBid,user);
+                    System.out.println("\n"+borrowResult+"\n");
                     break;
                 case 2:
                     // Return book
-                    System.out.println(" Enter the Book Id of the book you want to return:");
+                    myBorrowedBooks(user,false);
+                    System.out.print(" Enter the Book Id of the book you want to return : ");
                     int returnBid = scanner.nextInt();
                     String returnResult = bookService.returnBook(returnBid);
-                    System.out.println(returnResult);
+                    System.out.println("\n"+returnResult+"\n");
                     break;
                 case 3:
                     // Back to Main menu
@@ -397,7 +485,7 @@ public class Main {
     public static void main(String[] args) throws ParseException {
         // final Logger logger = LoggerFactory.getLogger(Main.class);
         bookService = new BookServiceImpl();
-        userService = new UserServiceImpl();
+        userService = new UserServiceImpl(bookService);
         boolean isRunning = true;
         while (isRunning) {
             int ch = loginUI();
@@ -411,9 +499,11 @@ public class Main {
                     dashboard(isRunning, user);
                     break;
                 case 2:
+                    appInstructions();
+                    designLine();
                     user = registerNewUser();
                     if (user != null) {
-                        System.out.println(" Continue login to the system ? Press [Y/N] for Yes and I will login later");
+                        System.out.print("  Would you like to proceed with login? Please enter [Y] for Yes, or [N] if you would like to login later : ");
                         char c = sc.next().charAt(0);
                         if (c == 'Y' || c == 'y') {
                             flag = true;
@@ -422,6 +512,9 @@ public class Main {
                         if(c == 'N' || c=='n'){
                             return;
                         }
+                    }else {
+                        System.out.println("  Try again :) ");
+                        break;
                     }
                     dashboard(isRunning, user);
                     break;
@@ -439,6 +532,8 @@ public class Main {
 
 
     }
+
+
 
 
 }

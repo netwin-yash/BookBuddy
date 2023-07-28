@@ -14,8 +14,8 @@ public interface UserService {
      User validateUser(String uName, String pwd);
      List<Book> mySharedBookHistory(User user);
 
-     List<Book> getListOfBorrowedBooks(User user);
+  //   List<Book> getListOfBorrowedBooks(User user);
 
-
-
+     public  boolean isUsernameExists(String username);
+      boolean isPhoneNumberRegistered(String phoneNumber);
 }
