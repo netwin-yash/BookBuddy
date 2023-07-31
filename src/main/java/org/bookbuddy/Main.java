@@ -4,7 +4,9 @@ package org.bookbuddy;
 
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
+import org.bookbuddy.service.LibraryService;
 import org.bookbuddy.service.impl.BookServiceImpl;
+import org.bookbuddy.service.impl.LibraryServiceImpl;
 import org.bookbuddy.service.impl.UserServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ public class Main {
     static final Logger logger = LoggerFactory.getLogger(Main.class);
     static BookServiceImpl bookService;
     static UserServiceImpl userService;
+    static LibraryServiceImpl libraryService;
     //reading String input
     static Scanner sc = new Scanner(System.in);
     // integer input reading
@@ -76,7 +79,6 @@ public class Main {
                 } else {
                     System.out.println();
                     System.out.println("  Sorry, the username you provided does not meet the required format. Please ensure your username adheres to the specified criteria. ");
-
                 }
             }
             if (isUsernameValid && !isPasswordValid) {
@@ -150,7 +152,7 @@ public class Main {
     }
 
     //dashboard
-    static void dashboard(boolean isRunning, User user) {
+    static void dashboard(boolean isRunning, User user) throws ParseException {
         designLine();
         System.out.println();
         System.out.printf("%125s %n", "* <== ** <=== *** <====  Welcome " + user.getName() + ", Have a great book sharing ====> *** ===> ** ==> *\n");
@@ -167,14 +169,13 @@ public class Main {
             System.out.println();
             switch (choice) {
                 case 1:
-                    addNewBook();
+                    addNewBook(user);
                     break;
                 case 2:
                     System.out.println("\n");
                     System.out.printf("%110s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *\n");
                     designLine();
-                    System.out.printf("%46s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status");
-                    System.out.println();
+                    System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
                     getListOfBooks();
                     designLine();
                     handleBookActions(user);
@@ -186,16 +187,25 @@ public class Main {
                     System.out.println();
                     System.out.printf("%113s %n", "* <== ** <=== *** <====  LIST OF AVAILABLE BOOKS ====> *** ===> ** ==> *");
                     designLine();
-                    System.out.printf("%46s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status\n");
+                    System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
                     int c = availableBooks();
                     if(c==0){
                         break;
                     }
+                    System.out.println();
                     designLine();
                     handleBookActions(user);
                     break;
                 case 5:
-                    getListOfBooks();
+                    System.out.println();
+                    System.out.printf("%113s %n", "* <== ** <=== *** <====  LIST OF AVAILABLE BOOKS ====> *** ===> ** ==> *\n");
+                    designLine();
+                    System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
+                    int ch = availableBooks();
+                    if(ch ==0){
+                        break;
+                    }
+                    designLine();
                     System.out.print(" \n Enter the Book Id of the book you want to borrow : ");
                     int borrowBid = scanner.nextInt();
                     String borrowResult = borrowBook(borrowBid,user);
@@ -228,7 +238,7 @@ public class Main {
         }
     }
     // add a new bok into the system.
-    private static void addNewBook() {
+    private static void addNewBook(User user) {
         Book book = new Book();
         System.out.print(" Enter title of book : ");
         String name = sc.nextLine();
@@ -242,7 +252,17 @@ public class Main {
         Set<String> authorList = Set.of(authorNamesArray);
         book.setAuthor(authorList);
 
-        String response = bookService.addBook(book);
+        System.out.print(" Enter quantity of books you want to share : ");
+        Integer count  = scanner.nextInt();
+        System.out.println();
+        book.setNoOfBooks(count);
+        System.out.print(" Enter unique accessible keywords for your book (comma-separated) : ");
+        String keywords = sc.nextLine();
+        String[] keywordArray = keywords.split(",");
+        Set<String> keywordList = Set.of(keywordArray);
+        book.setKeyword(keywordList);
+        System.out.println();
+        String response = bookService.addBook(book,user);
         System.out.println(response+"\n" );
     }
     // all books
@@ -251,11 +271,11 @@ public class Main {
         for (Book b : booklist) {
             // Use format specifiers to maintain similar spaces between book details
             String auth = String.join(", ",b.getAuthor());
-            System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
+            System.out.printf("%38s %20s %21s %30s %15s %n", b.getName(), auth, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
         }
     }
     // borrow a book
-    private static String borrowBook(Integer bid,User user) {
+    private static String borrowBook(Integer bid,User user) throws ParseException {
         return bookService.borrowBook(bid,user);
     }
     // available books to borrow
@@ -267,7 +287,7 @@ public class Main {
         }else {
             for(Book b : bookList){
                 String auth = String.join(", ",b.getAuthor());
-                System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
+                System.out.printf("%38s %20s %21s %30s %15s %n", b.getName(), auth, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
             }
             return 1;
         }
@@ -279,12 +299,11 @@ public class Main {
         if(user !=null) {
             List<Book> bookList = userService.mySharedBookHistory(user);
             if(bookList!=null) {
-                System.out.printf("%45s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status");
-                System.out.println("\n");
+                System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
                 for (Book b : bookList) {
                     // Use format specifiers to maintain similar spaces between book details
                     String auth = String.join(", ",b.getAuthor());
-                    System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
+                    System.out.printf("%38s %20s %21s %30s %15s %n", b.getName(), auth, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
                     count++;
                 }
                 System.out.println("\n");
@@ -309,13 +328,15 @@ public class Main {
             return 0;
         }
         else {
+            System.out.printf("%110s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *");
             System.out.println("\n");
             designLine();
-            System.out.printf("%47s %24s %23s %24s %n", "Name", "Author", "Book Id", "Status\n");
+            System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
             for (Book b : bookList) {
                 String auth = String.join(", ",b.getAuthor());
-                System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
+                System.out.printf("%38s %20s %21s %30s %15s %n", b.getName(), auth, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
             }
+            designLine();
             return 1;
         }
     }
@@ -329,18 +350,18 @@ public class Main {
     }
     // my borrowed books
     private static boolean myBorrowedBooks(User user,boolean flag){
-        List<Book> book = userService.getListOfBorrowedBooks(user);
-        if(book.isEmpty() || book == null){
+        Set<Book> book = userService.getListOfBorrowedBooks(user);
+        if(book == null){
             System.out.println(" You have not borrowed any book yet...!\n");
             return true;
         }
         System.out.printf("%110s %n", "* <-- ** <--- *** <---- BOOKS BORROWED BY YOU ----> *** ---> ** --> *\n\n");
         designLine();
-        System.out.printf("%45s %25s %24s %28s %n", "Name", "Author", "Book Id", "Status");
-        System.out.println();
+        System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
+
         for(Book b : book){
             String auth = String.join(", ",b.getAuthor());
-            System.out.printf("%50s %20s %21s %30s %n", b.getName(), auth, b.getBid(), b.getBookStatus());
+            System.out.printf("%34s %24s %21s %30s %15s %n", b.getName(), auth, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
         }
         designLine();
         return true;
@@ -384,38 +405,41 @@ public class Main {
             System.out.println("\n");
             switch (userChoice) {
                 case 1:
-                    System.out.println(" Enter the name of a book\n");
+                    System.out.print(" Enter the name of a book : ");
                     String bName = sc.nextLine();
+                    System.out.println();
                     int ch = searchBookWithName(bName);
                     if(ch == 0){
-                        System.out.println("\nBook named with "+bName+ " is currently not available in library\n");
+                        System.out.println("\n Book named with "+bName+ " is currently not available in library\n");
                         break;
                     }else {
                         break;
                     }
                 case 2:
-                    System.out.println(" Enter Author name");
+                    System.out.print(" Enter Author name : ");
                     String name = sc.nextLine();
+                    System.out.println();
                     List<Book> book =  bookService.searchBookWithAuthorName(name);
-                    if(book.isEmpty() || book == null){
-                        System.out.println("No records found with the author named "+name);
+                    if(book == null){
+                        System.out.println(" No records found with the author named\n "+name);
                         return;
                     }else {
                         System.out.printf("%110s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *\n");
                         designLine();
                         System.out.println();
-                        System.out.printf("%47s %24s %23s %24s %n", "Name", "Author", "Book Id", "Status\n");
+                        System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
                         for (Book b : book) {
                             String authors = String.join(", ", b.getAuthor());
-                            System.out.printf("%50s %20s %21s %30s %n", b.getName(), authors, b.getBid(), b.getBookStatus());
+                            System.out.printf("%38s %20s %21s %30s %15s %n", b.getName(), authors, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
                         }
                         System.out.println();
                         designLine();
                         break;
                     }
                 case 3:
-                    System.out.println(" Enter a keyword");
+                    System.out.print(" Enter a keyword : ");
                     String keyword = sc.nextLine();
+                    System.out.println();
                     List<Book> bookList = bookService.searchBookWithKeywords(keyword);
                     if(bookList.isEmpty() || bookList == null){
                         System.out.println(" No records Found..!");
@@ -424,10 +448,10 @@ public class Main {
                     System.out.printf("%110s %n", "* <== ** <=== *** <====  LIST OF BOOKS ====> *** ===> ** ==> *\n");
                     designLine();
                     System.out.println();
-                    System.out.printf("%47s %24s %23s %24s %n", "Name", "Author", "Book Id", "Status\n");
+                    System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
                     for (Book b : bookList) {
                         String authors = String.join(", ", b.getAuthor());
-                        System.out.printf("%50s %20s %21s %30s %n", b.getName(), authors, b.getBid(), b.getBookStatus());
+                        System.out.printf("%38s %20s %21s %30s %15s %n", b.getName(), authors, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
                     }
                     System.out.println();
                     designLine();
@@ -441,10 +465,10 @@ public class Main {
         }
     }
     //library
-    static void handleBookActions(User user) {
+    static void handleBookActions(User user) throws ParseException {
         while (true) {
 
-            System.out.printf("%44s %35s %35s %n", " 1. Borrow book", "2. Return book", "3. Back to Main menu");
+            System.out.printf("%45s %35s %45s %n", " 1. Borrow book", "2. Return book", "3. Back to Main menu");
             System.out.print("\n Enter your choice : ");
             int userChoice = scanner.nextInt();
             System.out.println("\n");
@@ -454,7 +478,7 @@ public class Main {
                     System.out.println();
                     System.out.printf("%113s %n", "* <== ** <=== *** <====  LIST OF AVAILABLE BOOKS ====> *** ===> ** ==> *");
                     designLine();
-                    System.out.printf("%46s %25s %24s %25s %n", "Name", "Author", "Book Id", "Status\n");
+                    System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
                     int c = availableBooks();
                     if(c==0){
                         break;
@@ -476,6 +500,7 @@ public class Main {
                     break;
                 case 3:
                     // Back to Main menu
+                    designLine();
                     return;
                 default:
                     System.out.println(" Invalid choice. Please choose a valid option.");
@@ -484,8 +509,9 @@ public class Main {
     }
     public static void main(String[] args) throws ParseException {
         // final Logger logger = LoggerFactory.getLogger(Main.class);
-        bookService = new BookServiceImpl();
+        bookService = new BookServiceImpl(userService,libraryService);
         userService = new UserServiceImpl(bookService);
+        libraryService = new LibraryServiceImpl(bookService,userService);
         boolean isRunning = true;
         while (isRunning) {
             int ch = loginUI();

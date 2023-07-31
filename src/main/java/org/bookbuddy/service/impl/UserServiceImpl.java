@@ -18,6 +18,7 @@ public class UserServiceImpl implements UserService {
     private final Map<String, User> userMap;
     private final BookService bookService;
 
+
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 
     public UserServiceImpl(BookService bookService) throws ParseException {
@@ -32,9 +33,11 @@ public class UserServiceImpl implements UserService {
 
         //Parsing the given String to Date object
         Date date = formatter.parse(date_string);
-        userMap.put("Yash@123", new User("Yash Joshi", 1, "1111111111", "Yash@123", "Pune", UserStatus.ACTIVE, date));
-        userMap.put("Shre@123", new User("Shreya", 2, "3222222222", "Shre@123", "Nashik", UserStatus.ACTIVE, date));
-        userMap.put("Ramesh@123", new User("Ramesh", 3, "4222222222", "Ramesh@123", "Mumbai", UserStatus.BLOCKED, date));
+        userMap.put("Admin@123", new User("Admin", 1, "0000000000", "Admin@123", "Pune", UserStatus.ACTIVE, date));
+        userMap.put("Yash@123", new User("Yash Joshi", 2, "1111111111", "Yash@123", "Pune", UserStatus.ACTIVE, date));
+        userMap.put("Shre@123", new User("Shreya", 3, "3222222222", "Shre@123", "Nashik", UserStatus.ACTIVE, date));
+        userMap.put("Ramesh@123", new User("Ramesh", 4, "4222222222", "Ramesh@123", "Mumbai", UserStatus.BLOCKED, date));
+
     }
     public  boolean isUsernameExists(String username) {
         return userMap.containsKey(username.trim());
@@ -115,23 +118,18 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    public List<Book> getListOfBorrowedBooks(User user) {
+    public Set<Book> getListOfBorrowedBooks(User user) {
         if (user == null) {
             return null;
         }
         boolean flag = false;
         List<Book> book = bookService.getListOfBooks();
-        List<Book> newList = new ArrayList<>();
-        for (Book b : book) {
-            if (b.getBookStatus().equals(BookStatus.TAKEN)) {
-                User u = b.getOwner();
-                flag = u.getuName().trim().equalsIgnoreCase(user.getuName().trim().toLowerCase());
-                if (flag) {
-                    newList.add(b);
-                }
-            }
-        }
-        return newList;
+
+       Set<Book> books =  user.getBorrowedBooks();
+
+
+
+        return books;
     }
 
 
