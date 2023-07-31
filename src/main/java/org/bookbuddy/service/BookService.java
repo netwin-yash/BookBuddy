@@ -3,13 +3,14 @@ package org.bookbuddy.service;
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
 
+import java.text.ParseException;
 import java.util.List;
 
 public interface BookService {
-    String addBook(Book book);
+    public String addBook(Book book,User user);
     List<Book> getListOfBooks();
 
-   String borrowBook(Integer bid, User user);
+   String borrowBook(Integer bid, User user) throws ParseException;
 
    String returnBook(Integer bid);
 

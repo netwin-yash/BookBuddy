@@ -2,7 +2,6 @@ package org.bookbuddy.pojo;
 
 import org.bookbuddy.constants.BookStatus;
 
-import java.util.List;
 import java.util.Set;
 
 public class Book {
@@ -12,17 +11,32 @@ public class Book {
     private BookStatus bookStatus;
     private User owner;
     private Set<String> keyword;
+    private Integer noOfBooks;
 
     public Book(){
     }
-    public Book(String name, int bid, Set<String> author, BookStatus status,User user,Set<String> keywords){
+    public Book(String name, Integer bid,Integer count,  Set<String> author, BookStatus status,User user,Set<String> keywords){
         this.name = name;
         this.bid = bid;
+        this.noOfBooks= count;
         this.author = author;
         this.bookStatus = status;
         this.owner = user;
         this.keyword = keywords;
     }
+
+    public void setKeyword(Set<String> keyword) {
+        this.keyword = keyword;
+    }
+
+    public Integer getNoOfBooks() {
+        return noOfBooks;
+    }
+
+    public void setNoOfBooks(Integer noOfBooks) {
+        this.noOfBooks = noOfBooks;
+    }
+
     public User getOwner() {
         return owner;
     }
@@ -39,7 +53,7 @@ public class Book {
     public Set<String> getKeyword(){
         return keyword;
     }
-    public void setBid(int bid) {
+    public void setBid(Integer bid) {
         this.bid = bid;
     }
 
@@ -49,7 +63,7 @@ public class Book {
     public String getName(){
         return name;
     }
-    public int getBid() {
+    public Integer getBid() {
         return bid;
     }
     public Set<String> getAuthor(){

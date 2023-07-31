@@ -1,35 +1,34 @@
 package org.bookbuddy.pojo;
 
 import java.util.Date;
-import java.util.List;
 
 public class Library {
-    private List<Book> book;
-    private List<User> user;
+    private Book book;
+    private User user;
     private Date allocateDate;
     private Date returnDate;
-    public Library(){
+    public Library(Book b, User user, Date parse){
     }
-    public Library(List<Book> book, List<User> user, Date allocateDate, Date returnDate) {
+    public Library(Book book, User user, Date allocateDate, Date returnDate) {
         this.book = book;
         this.user = user;
         this.allocateDate = allocateDate;
         this.returnDate = returnDate;
     }
 
-    public List<Book> getBook() {
+    public Book getBook() {
         return book;
     }
 
-    public void setBook(List<Book> book) {
+    public void setBook(Book book) {
         this.book = book;
     }
 
-    public List<User> getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(List<User> user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

@@ -30,10 +30,11 @@ public class User {
 public User(String msg){
       this.msg =msg;
 }
-    public User(String uName,int uid, String phone) {
+    public User(String uName,int uid, String phone,Set<Book> borrowedBooks) {
         this.uName = uName;
         this.uid = uid;
         this.phone = phone;
+        this.borrowedBooks = borrowedBooks;
     }
     public User(String name,int uid, String phone,String password,String uAddress,UserStatus userStatus,Date regDate) {
         this.name = name;
