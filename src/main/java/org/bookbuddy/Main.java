@@ -4,7 +4,8 @@ package org.bookbuddy;
 
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
-import org.bookbuddy.service.LibraryService;
+import org.bookbuddy.service.BookService;
+import org.bookbuddy.service.UserService;
 import org.bookbuddy.service.impl.BookServiceImpl;
 import org.bookbuddy.service.impl.LibraryServiceImpl;
 import org.bookbuddy.service.impl.UserServiceImpl;
@@ -19,9 +20,9 @@ import java.util.regex.Pattern;
 
 public class Main {
     static final Logger logger = LoggerFactory.getLogger(Main.class);
-    static BookServiceImpl bookService;
-    static UserServiceImpl userService;
-    static LibraryServiceImpl libraryService;
+    static BookService bookService;
+    static UserService userService;
+//    static LibraryServiceImpl libraryService;
     //reading String input
     static Scanner sc = new Scanner(System.in);
     // integer input reading
@@ -212,11 +213,16 @@ public class Main {
                     System.out.println("\n"+borrowResult+"\n");
                     break;
                 case 6:
-                    myBorrowedBooks(user,false);
-                    System.out.print(" Enter the Book Id of the book you want to return : ");
-                    int returnBid = scanner.nextInt();
-                    String returnResult = bookService.returnBook(returnBid);
-                    System.out.println("\n"+returnResult+"\n");
+                   boolean flag =  myBorrowedBooks(user,false);
+                   if(!flag){
+                       System.out.println(" You have not borrowed any book to return... \n");
+                       designLine();
+                   }else {
+                       System.out.print(" Enter the Book Id of the book you want to return : ");
+                       int returnBid = scanner.nextInt();
+                       String returnResult = bookService.returnBook(returnBid, user);
+                       System.out.println("\n" + returnResult + "\n");
+                   }
                     break;
                 case 7:
                     System.out.printf("%110s %n", "* <-- ** <--- *** <---- BOOKS SHARED BY YOU ----> *** ---> ** --> *\n\n");
@@ -281,7 +287,7 @@ public class Main {
     // available books to borrow
     private static int availableBooks() {
 
-        List<Book> bookList = bookService.getAllAvailbleBooks();
+        List<Book> bookList = bookService.getAllAvailableBooks();
         if(bookList == null){
             return 0;
         }else {
@@ -355,14 +361,18 @@ public class Main {
             System.out.println(" You have not borrowed any book yet...!\n");
             return true;
         }
+        if(!book.isEmpty()) {
         System.out.printf("%110s %n", "* <-- ** <--- *** <---- BOOKS BORROWED BY YOU ----> *** ---> ** --> *\n\n");
         designLine();
         System.out.printf("%34s %24s %23s %25s %25s %n", "Name", "Author", "Book Id", "Status", "Available Books\n");
-
-        for(Book b : book){
-            String auth = String.join(", ",b.getAuthor());
-            System.out.printf("%34s %24s %21s %30s %15s %n", b.getName(), auth, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
-        }
+             for (Book b : book) {
+                 String auth = String.join(", ", b.getAuthor());
+                 System.out.printf("%34s %24s %21s %30s %15s %n", b.getName(), auth, b.getBid(), b.getBookStatus(), b.getNoOfBooks());
+             }
+         }
+         else {
+             return false;
+         }
         designLine();
         return true;
     }
@@ -492,11 +502,16 @@ public class Main {
                     break;
                 case 2:
                     // Return book
-                    myBorrowedBooks(user,false);
-                    System.out.print(" Enter the Book Id of the book you want to return : ");
-                    int returnBid = scanner.nextInt();
-                    String returnResult = bookService.returnBook(returnBid);
-                    System.out.println("\n"+returnResult+"\n");
+                    boolean flag =  myBorrowedBooks(user,false);
+                    if(!flag){
+                        System.out.println(" You have not borrowed any book to return... \n");
+                        designLine();
+                    }else {
+                        System.out.print(" Enter the Book Id of the book you want to return : ");
+                        int returnBid = scanner.nextInt();
+                        String returnResult = bookService.returnBook(returnBid, user);
+                        System.out.println("\n" + returnResult + "\n");
+                    }
                     break;
                 case 3:
                     // Back to Main menu
@@ -509,9 +524,12 @@ public class Main {
     }
     public static void main(String[] args) throws ParseException {
         // final Logger logger = LoggerFactory.getLogger(Main.class);
-        bookService = new BookServiceImpl(userService,libraryService);
-        userService = new UserServiceImpl(bookService);
-        libraryService = new LibraryServiceImpl(bookService,userService);
+        bookService = new BookServiceImpl();
+        userService = new UserServiceImpl();
+        bookService.setUserService(userService);
+        userService.setBookService(bookService);
+
+        // libraryService = new LibraryServiceImpl(bookService,userService);
         boolean isRunning = true;
         while (isRunning) {
             int ch = loginUI();

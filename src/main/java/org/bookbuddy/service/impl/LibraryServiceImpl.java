@@ -14,9 +14,9 @@ import java.util.*;
 
 public class LibraryServiceImpl implements LibraryService {
 
-private final BookService bookService;
-private final UserService userService;
-    public LibraryServiceImpl(BookService bookService, UserService userService) {
+private final BookServiceImpl bookService;
+private final UserServiceImpl userService;
+    public LibraryServiceImpl(BookServiceImpl bookService, UserServiceImpl userService) {
         this.bookService = bookService;
         this.userService = userService;
     }

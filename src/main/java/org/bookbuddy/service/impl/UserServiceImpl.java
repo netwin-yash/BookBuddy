@@ -16,17 +16,19 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final Map<String, User> userMap;
-    private final BookService bookService;
+    private  BookService bookService;
 
 
     SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 
-    public UserServiceImpl(BookService bookService) throws ParseException {
-        this.bookService = bookService;
+    public UserServiceImpl( ) throws ParseException {
+       // this.bookService = bookService;
         userMap = new HashMap<>();
         initialUsers();
     }
-
+    public void setBookService(BookService bookService) {
+        this.bookService = bookService;
+    }
     public void initialUsers() throws ParseException {
         String date_string = "24-07-2023";
         //Instantiating the SimpleDateFormat class
