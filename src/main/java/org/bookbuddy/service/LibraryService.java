@@ -11,8 +11,8 @@ import java.util.Set;
 public interface LibraryService {
 
 
-     Map<String, Library> getDetailsOfBorrowedBooks(User user, Set<Book> borrowedBooks) throws ParseException;
-
+     String getDetailsOfBorrowedBooks(User user, Integer bid) throws ParseException;
+     public void displayRegister();
 
 
 }

@@ -5,6 +5,7 @@ package org.bookbuddy;
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
 import org.bookbuddy.service.BookService;
+import org.bookbuddy.service.LibraryService;
 import org.bookbuddy.service.UserService;
 import org.bookbuddy.service.impl.BookServiceImpl;
 import org.bookbuddy.service.impl.LibraryServiceImpl;
@@ -22,7 +23,7 @@ public class Main {
     static final Logger logger = LoggerFactory.getLogger(Main.class);
     static BookService bookService;
     static UserService userService;
-//    static LibraryServiceImpl libraryService;
+    static LibraryService libraryService;
     //reading String input
     static Scanner sc = new Scanner(System.in);
     // integer input reading
@@ -210,6 +211,7 @@ public class Main {
                     System.out.print(" \n Enter the Book Id of the book you want to borrow : ");
                     int borrowBid = scanner.nextInt();
                     String borrowResult = borrowBook(borrowBid,user);
+                    libraryService.getDetailsOfBorrowedBooks(user,borrowBid);
                     System.out.println("\n"+borrowResult+"\n");
                     break;
                 case 6:
@@ -234,6 +236,9 @@ public class Main {
                 case 8:
                  handleOtherOption(user);
                  break;
+                case 10:
+                    libraryService.displayRegister();
+                    break;
                 case 9:
                     System.out.println("\n See You Soon..! " +user.getName());
                     return;
@@ -529,7 +534,7 @@ public class Main {
         bookService.setUserService(userService);
         userService.setBookService(bookService);
 
-        // libraryService = new LibraryServiceImpl(bookService,userService);
+        libraryService = new LibraryServiceImpl(bookService,userService);
         boolean isRunning = true;
         while (isRunning) {
             int ch = loginUI();
