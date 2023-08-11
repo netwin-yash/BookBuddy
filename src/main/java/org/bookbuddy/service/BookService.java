@@ -12,11 +12,12 @@ public interface BookService {
 
    String borrowBook(Integer bid, User user) throws ParseException;
 
-   String returnBook(Integer bid);
+   String returnBook(Integer bid,User user);
 
-   List<Book> getAllAvailbleBooks();
+   List<Book> getAllAvailableBooks();
    List<Book> searchBookByName(String name);
     List<Book> searchBookWithAuthorName(String sName);
 
     List<Book> searchBookWithKeywords(String keyword);
+    void setUserService(UserService userService);
 }

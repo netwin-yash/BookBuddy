@@ -5,7 +5,6 @@ import org.bookbuddy.exceptions.BookExceptions;
 import org.bookbuddy.pojo.Book;
 import org.bookbuddy.pojo.User;
 import org.bookbuddy.service.BookService;
-import org.bookbuddy.service.LibraryService;
 import org.bookbuddy.service.UserService;
 
 import java.text.ParseException;
@@ -15,15 +14,18 @@ import java.util.stream.Collectors;
 public class BookServiceImpl implements BookService {
 
     // Instance variable to store the list of books
-    private List<Book> initialBookList;
-    private final UserService userService;
-    private final LibraryService libraryService;
-        public BookServiceImpl(UserService userService, LibraryService libraryService) {
-            this.userService = userService;
-            this.libraryService = libraryService;
+    private final List<Book> initialBookList;
+    private UserService userService;
+
+    public BookServiceImpl() {
+       // this.userService = userService;
         initialBookList = new ArrayList<>();
         initializeBooks();
     }
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
 
     public void initializeBooks() {
         initialBookList.add(new Book("Wings Of Fire", 1,3,Set.of("Apj", "Kalam"), BookStatus.AVAILABLE, new User("Yash@123", 1, "1111111111",Set.of()),Set.of("apj","kalam book","wings","fire","Rocket")));
@@ -93,7 +95,7 @@ public class BookServiceImpl implements BookService {
 
 
                 //making entry to library
-                libraryService.getDetailsOfBorrowedBooks(user,borrowedBooks);
+                //libraryService.getDetailsOfBorrowedBooks(user,borrowedBooks);
 
                 return " Book Borrowed Successfully...!!";
             } else {
@@ -106,20 +108,31 @@ public class BookServiceImpl implements BookService {
 
     }
 
-    public String returnBook(Integer bid){
+    public String returnBook(Integer bid, User user){
         if(bid == null || bid == 0) {
             throw new BookExceptions(" Book Id can not be zero or empty");
         }
         Book b =initialBookList.stream().filter(book -> book.getBid()==bid).findFirst().get();
-        if(b!=null && b.getBookStatus()==BookStatus.TAKEN){
-            b.setBookStatus(BookStatus.AVAILABLE);
+        Set<Book> myBorrowedBooks = userService.getListOfBorrowedBooks(user);
+        if(b!=null){
+            for (Book book : myBorrowedBooks) {
+              if(book.getBid().equals(bid)) {
+                  Integer i = b.getNoOfBooks();
+                  i++;
+                  b.setNoOfBooks(i);
+                  b.setBookStatus(BookStatus.AVAILABLE);
+                  myBorrowedBooks.remove(b);
+              }else{
+                  return " Return only the book you borrowed.";
+              }
+            }
         }else{
             return " Return only the book you borrowed.";
         }
         return " Book Returned Successfully...!!";
     }
 
-    public List<Book> getAllAvailbleBooks(){
+    public List<Book> getAllAvailableBooks(){
         List<Book> b = getListOfBooks().stream().filter(book -> book.getBookStatus().equals(BookStatus.AVAILABLE)).collect(Collectors.toList());
         if(b.isEmpty()){
             System.out.println("No Book Available...! Come back later :) ");

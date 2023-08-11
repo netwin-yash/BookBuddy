@@ -1,15 +1,16 @@
 package org.bookbuddy.pojo;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Library {
     private Book book;
     private User user;
-    private Date allocateDate;
-    private Date returnDate;
+    private LocalDate allocateDate;
+    private LocalDate returnDate;
     public Library(Book b, User user, Date parse){
     }
-    public Library(Book book, User user, Date allocateDate, Date returnDate) {
+    public Library(Book book, User user, LocalDate allocateDate, LocalDate returnDate) {
         this.book = book;
         this.user = user;
         this.allocateDate = allocateDate;
@@ -32,19 +33,19 @@ public class Library {
         this.user = user;
     }
 
-    public Date getAllocateDate() {
+    public LocalDate getAllocateDate() {
         return allocateDate;
     }
 
-    public void setAllocateDate(Date allocateDate) {
+    public void setAllocateDate(LocalDate allocateDate) {
         this.allocateDate = allocateDate;
     }
 
-    public Date getReturnDate() {
+    public LocalDate getReturnDate() {
         return returnDate;
     }
 
-    public void setReturnDate(Date returnDate) {
+    public void setReturnDate(LocalDate returnDate) {
         this.returnDate = returnDate;
     }
 }

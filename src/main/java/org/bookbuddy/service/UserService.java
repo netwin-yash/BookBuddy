@@ -5,6 +5,7 @@ import org.bookbuddy.pojo.User;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Set;
 
 public interface UserService {
 
@@ -18,4 +19,6 @@ public interface UserService {
 
      public  boolean isUsernameExists(String username);
       boolean isPhoneNumberRegistered(String phoneNumber);
+      Set<Book> getListOfBorrowedBooks(User user);
+     void setBookService(BookService bookService);
 }
